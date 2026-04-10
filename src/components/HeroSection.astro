@@ -1,0 +1,57 @@
+---
+interface CTA {
+  label: string;
+  href: string;
+  variant?: 'primary' | 'secondary';
+}
+
+interface Props {
+  headline: string;
+  highlightedText?: string;
+  subtitle: string;
+  badge?: string;
+  ctas?: CTA[];
+}
+
+const { headline, highlightedText, subtitle, badge, ctas = [] } = Astro.props;
+---
+
+<section class="relative overflow-hidden pt-28 pb-20 sm:pt-36 sm:pb-24 bg-gradient-to-b from-blue-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-950 dark:to-slate-900">
+  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.08),transparent_70%)]"></div>
+  <div class="relative mx-auto w-full max-w-5xl px-4 sm:px-6 text-center">
+    {badge && (
+      <span class="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium mb-6 border border-blue-200 dark:border-blue-800">
+        {badge}
+      </span>
+    )}
+    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 leading-tight text-slate-900 dark:text-white">
+      {headline}
+      {highlightedText && (
+        <>
+          {' '}<span class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">{highlightedText}</span>
+        </>
+      )}
+    </h1>
+    <p class="text-lg sm:text-xl text-slate-600 dark:text-slate-400 max-w-3xl mx-auto leading-relaxed mb-10">
+      {subtitle}
+    </p>
+    {ctas.length > 0 && (
+      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        {ctas.map((cta) => (
+          <a
+            href={cta.href}
+            class:list={[
+              'inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold transition-colors text-lg',
+              cta.variant === 'secondary'
+                ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700'
+                : 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg',
+            ]}
+          >
+            {cta.label}
+          </a>
+        ))}
+      </div>
+    )}
+    <slot />
+  </div>
+</section>

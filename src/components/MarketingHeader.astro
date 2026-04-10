@@ -1,0 +1,142 @@
+---
+interface NavItem {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  brandName: string;
+  brandGradient?: string;
+  homeHref?: string;
+  navItems: NavItem[];
+  ctaLabel?: string;
+  ctaHref?: string;
+  signInLabel?: string;
+  signInHref?: string;
+  currentPath?: string;
+  extraSlot?: boolean;
+}
+
+const {
+  brandName,
+  brandGradient = 'from-blue-600 to-indigo-600',
+  homeHref = '/',
+  navItems,
+  ctaLabel,
+  ctaHref,
+  signInLabel,
+  signInHref,
+  currentPath = '',
+} = Astro.props;
+---
+
+<header class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-800">
+  <nav class="mx-auto w-full max-w-6xl px-4 sm:px-6 flex items-center justify-between h-16" aria-label="Main navigation">
+    <a href={homeHref} class="flex items-center gap-2 font-bold text-xl text-slate-900 dark:text-white">
+      <span class={`bg-gradient-to-r ${brandGradient} bg-clip-text text-transparent`}>{brandName}</span>
+    </a>
+
+    <ul class="hidden md:flex items-center gap-8">
+      {navItems.map(({ label, href }) => (
+        <li>
+          <a
+            href={href}
+            class:list={[
+              'text-sm font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-400',
+              currentPath === href || currentPath === `${href}/`
+                ? 'text-blue-600 dark:text-blue-400'
+                : 'text-slate-600 dark:text-slate-400',
+            ]}
+          >
+            {label}
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <div class="hidden md:flex items-center gap-3">
+      <slot name="header-extra" />
+      {signInLabel && signInHref && (
+        <a
+          href={signInHref}
+          class="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+        >
+          {signInLabel}
+        </a>
+      )}
+      {ctaLabel && ctaHref && (
+        <a
+          href={ctaHref}
+          class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          {ctaLabel}
+        </a>
+      )}
+    </div>
+
+    <button
+      id="mobile-menu-btn"
+      type="button"
+      class="md:hidden p-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      aria-label="Toggle navigation menu"
+    >
+      <svg id="menu-open-icon" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+      </svg>
+      <svg id="menu-close-icon" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </nav>
+
+  <div id="mobile-menu" class="md:hidden hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+    <ul class="px-4 py-4 space-y-2">
+      {navItems.map(({ label, href }) => (
+        <li>
+          <a
+            href={href}
+            class:list={[
+              'block px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+              currentPath === href || currentPath === `${href}/`
+                ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800',
+            ]}
+          >
+            {label}
+          </a>
+        </li>
+      ))}
+      {signInLabel && signInHref && (
+        <li class="pt-2 border-t border-slate-200 dark:border-slate-800">
+          <a href={signInHref} class="block px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-400">
+            {signInLabel}
+          </a>
+        </li>
+      )}
+      {ctaLabel && ctaHref && (
+        <li>
+          <a href={ctaHref} class="block px-3 py-2 text-sm font-semibold text-blue-600 dark:text-blue-400">
+            {ctaLabel}
+          </a>
+        </li>
+      )}
+    </ul>
+  </div>
+</header>
+
+<script>
+  const btn = document.getElementById('mobile-menu-btn');
+  const menu = document.getElementById('mobile-menu');
+  const openIcon = document.getElementById('menu-open-icon');
+  const closeIcon = document.getElementById('menu-close-icon');
+
+  btn?.addEventListener('click', () => {
+    const expanded = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!expanded));
+    menu?.classList.toggle('hidden');
+    openIcon?.classList.toggle('hidden');
+    closeIcon?.classList.toggle('hidden');
+  });
+</script>

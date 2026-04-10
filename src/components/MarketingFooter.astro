@@ -1,0 +1,50 @@
+---
+interface LinkGroup {
+  title: string;
+  links: { label: string; href: string }[];
+}
+
+interface Props {
+  brandName: string;
+  brandGradient?: string;
+  homeHref?: string;
+  tagline: string;
+  linkGroups: LinkGroup[];
+}
+
+const {
+  brandName,
+  brandGradient = 'from-blue-400 to-indigo-400',
+  homeHref = '/',
+  tagline,
+  linkGroups,
+} = Astro.props;
+
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="bg-slate-900 text-slate-400 border-t border-slate-800">
+  <div class="mx-auto w-full max-w-6xl px-4 sm:px-6 py-12 sm:py-16">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+      <div class="col-span-2 md:col-span-1">
+        <a href={homeHref} class="text-xl font-bold text-white">
+          <span class={`bg-gradient-to-r ${brandGradient} bg-clip-text text-transparent`}>{brandName}</span>
+        </a>
+        <p class="mt-3 text-sm leading-relaxed">{tagline}</p>
+      </div>
+      {linkGroups.map((group) => (
+        <div>
+          <h3 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">{group.title}</h3>
+          <ul class="space-y-2">
+            {group.links.map(({ label, href }) => (
+              <li><a href={href} class="text-sm hover:text-white transition-colors">{label}</a></li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+    <div class="mt-12 pt-8 border-t border-slate-800 text-sm text-center">
+      <p>&copy; {currentYear} puglieseweb LTD. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
