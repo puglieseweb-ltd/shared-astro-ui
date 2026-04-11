@@ -10,16 +10,20 @@ interface Props {
   homeHref?: string;
   tagline: string;
   linkGroups: LinkGroup[];
+  currentLang?: string;
+  defaultLang?: string;
 }
 
 const {
   brandName,
   brandGradient = 'from-blue-400 to-indigo-400',
-  homeHref = '/',
   tagline,
   linkGroups,
+  currentLang,
+  defaultLang = 'en',
 } = Astro.props;
 
+const homeHref = Astro.props.homeHref ?? (currentLang && currentLang !== defaultLang ? `/${currentLang}/` : '/');
 const currentYear = new Date().getFullYear();
 ---
 

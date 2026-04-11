@@ -15,19 +15,39 @@ interface Props {
   signInHref?: string;
   currentPath?: string;
   extraSlot?: boolean;
+  languages?: Record<string, string>;
+  currentLang?: string;
+  defaultLang?: string;
 }
 
 const {
   brandName,
   brandGradient = 'from-blue-600 to-indigo-600',
-  homeHref = '/',
   navItems,
   ctaLabel,
   ctaHref,
   signInLabel,
   signInHref,
   currentPath = '',
+  currentLang,
+  defaultLang = 'en',
+  languages,
 } = Astro.props;
+
+// Compute locale-aware home href
+const homeHref = Astro.props.homeHref ?? (currentLang && currentLang !== defaultLang ? `/${currentLang}/` : '/');
+
+// Language switcher logic (only when i18n is enabled)
+const hasI18n = languages && currentLang && Object.keys(languages).length > 1;
+let switchUrl = '';
+let otherLangLabel = '';
+if (hasI18n) {
+  const langKeys = Object.keys(languages);
+  const otherLang = langKeys.find((l) => l !== currentLang) ?? langKeys[0];
+  otherLangLabel = languages[otherLang];
+  const pathWithoutLang = currentPath.replace(new RegExp(`^\\/(${langKeys.join('|')})`), '') || '/';
+  switchUrl = otherLang === defaultLang ? pathWithoutLang : `/${otherLang}${pathWithoutLang}`;
+}
 ---
 
 <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-800">
@@ -36,6 +56,7 @@ const {
       <span class={`bg-gradient-to-r ${brandGradient} bg-clip-text text-transparent`}>{brandName}</span>
     </a>
 
+    <!-- Desktop nav -->
     <ul class="hidden md:flex items-center gap-8">
       {navItems.map(({ label, href }) => (
         <li>
@@ -56,6 +77,14 @@ const {
 
     <div class="hidden md:flex items-center gap-3">
       <slot name="header-extra" />
+      {hasI18n && (
+        <a
+          href={switchUrl}
+          class="text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors px-2 py-1 border border-slate-200 dark:border-slate-700 rounded"
+        >
+          {otherLangLabel}
+        </a>
+      )}
       {signInLabel && signInHref && (
         <a
           href={signInHref}
@@ -74,6 +103,7 @@ const {
       )}
     </div>
 
+    <!-- Mobile menu button -->
     <button
       id="mobile-menu-btn"
       type="button"
@@ -91,6 +121,7 @@ const {
     </button>
   </nav>
 
+  <!-- Mobile menu -->
   <div id="mobile-menu" class="md:hidden hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
     <ul class="px-4 py-4 space-y-2">
       {navItems.map(({ label, href }) => (
@@ -108,13 +139,20 @@ const {
           </a>
         </li>
       ))}
-      {signInLabel && signInHref && (
-        <li class="pt-2 border-t border-slate-200 dark:border-slate-800">
-          <a href={signInHref} class="block px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-400">
-            {signInLabel}
-          </a>
+      {(signInLabel && signInHref) || hasI18n ? (
+        <li class="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          {signInLabel && signInHref && (
+            <a href={signInHref} class="block px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-400">
+              {signInLabel}
+            </a>
+          )}
+          {hasI18n && (
+            <a href={switchUrl} class="text-xs font-medium text-slate-500 px-2 py-1 border border-slate-200 dark:border-slate-700 rounded">
+              {otherLangLabel}
+            </a>
+          )}
         </li>
-      )}
+      ) : null}
       {ctaLabel && ctaHref && (
         <li>
           <a href={ctaHref} class="block px-3 py-2 text-sm font-semibold text-blue-600 dark:text-blue-400">
