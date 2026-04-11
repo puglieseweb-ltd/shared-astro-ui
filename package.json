@@ -20,5 +20,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/puglieseweb-ltd/shared-astro-ui.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   }
 }
