@@ -1,0 +1,309 @@
+---
+interface SubjectOption {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  /** Page heading before the highlighted word */
+  headingPrefix?: string;
+  /** Highlighted word in the heading (gradient styled) */
+  headingHighlight?: string;
+  /** Subtitle under the heading */
+  subtitle?: string;
+  /** Form field labels */
+  labels?: {
+    name?: string;
+    email?: string;
+    subject?: string;
+    message?: string;
+    submit?: string;
+  };
+  /** Placeholders for form fields */
+  placeholders?: {
+    name?: string;
+    email?: string;
+    subject?: string;
+    message?: string;
+  };
+  /** Subject dropdown options */
+  subjects?: SubjectOption[];
+  /** Contact email address shown in sidebar */
+  contactEmail?: string;
+  /** Sidebar email card text */
+  emailCard?: {
+    title?: string;
+    description?: string;
+  };
+  /** Sidebar CTA card */
+  ctaCard?: {
+    title?: string;
+    description?: string;
+    label?: string;
+    href?: string;
+  };
+  /** Success message shown after form submit */
+  successMessage?: {
+    title?: string;
+    description?: string;
+  };
+  /** Error message shown on failure */
+  errorMessage?: string;
+  /** Submit button text while sending */
+  sendingText?: string;
+  /** API endpoint URL for form submission */
+  apiUrl: string;
+  /** Product identifier sent with the form data */
+  product: string;
+}
+
+const {
+  headingPrefix = 'Get in',
+  headingHighlight = 'Touch',
+  subtitle = 'Have a question, need a demo, or want to discuss enterprise plans? We\'d love to hear from you.',
+  labels = {},
+  placeholders = {},
+  subjects = [
+    { value: 'demo', label: 'Request a Demo' },
+    { value: 'pricing', label: 'Pricing & Plans' },
+    { value: 'support', label: 'Technical Support' },
+    { value: 'partnership', label: 'Partnership' },
+    { value: 'other', label: 'Other' },
+  ],
+  contactEmail = 'hello@noteble.ai',
+  emailCard = {},
+  ctaCard = {},
+  successMessage = {},
+  errorMessage,
+  sendingText = 'Sending...',
+  apiUrl,
+  product,
+} = Astro.props;
+
+const l = {
+  name: labels.name ?? 'Full Name',
+  email: labels.email ?? 'Email',
+  subject: labels.subject ?? 'Subject',
+  message: labels.message ?? 'Message',
+  submit: labels.submit ?? 'Send Message',
+};
+
+const p = {
+  name: placeholders.name ?? 'Jane Smith',
+  email: placeholders.email ?? 'jane@company.com',
+  subject: placeholders.subject ?? 'Select a topic',
+  message: placeholders.message ?? 'Tell us how we can help...',
+};
+
+const email = {
+  title: emailCard.title ?? 'Email Us',
+  description: emailCard.description ?? 'Prefer email? We\'ll respond within one business day.',
+};
+
+const cta = {
+  title: ctaCard.title ?? 'Ready to start?',
+  description: ctaCard.description ?? 'Try it free — no credit card required.',
+  label: ctaCard.label ?? 'Start Free Trial',
+  href: ctaCard.href ?? '/signup',
+};
+
+const success = {
+  title: successMessage.title ?? 'Message Sent!',
+  description: successMessage.description ?? 'We\'ll get back to you within one business day.',
+};
+
+const error = errorMessage ?? `Something went wrong. Please try again or email us at ${contactEmail}.`;
+---
+
+<section class="pt-28 pb-16 sm:pt-36 sm:pb-20">
+  <div class="mx-auto w-full max-w-4xl px-4 sm:px-6">
+    <div class="text-center mb-12">
+      <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight mb-6">
+        {headingPrefix}{' '}
+        <span class="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{headingHighlight}</span>
+      </h1>
+      <p class="text-lg sm:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
+        {subtitle}
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-5 gap-8 max-w-4xl mx-auto">
+      <!-- Contact Form -->
+      <div class="md:col-span-3">
+        <form
+          id="contact-form"
+          class="bg-white dark:bg-slate-800 rounded-2xl p-8 border border-slate-200 dark:border-slate-700 shadow-sm space-y-6"
+          data-api-url={apiUrl}
+          data-product={product}
+          data-sending-text={sendingText}
+          data-success-title={success.title}
+          data-success-description={success.description}
+          data-error-message={error}
+          data-submit-label={l.submit}
+        >
+          <div class="grid sm:grid-cols-2 gap-6">
+            <div>
+              <label for="name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {l.name}
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                required
+                class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                placeholder={p.name}
+              />
+            </div>
+            <div>
+              <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                {l.email}
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                required
+                class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                placeholder={p.email}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="subject" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              {l.subject}
+            </label>
+            <select
+              id="subject"
+              name="subject"
+              required
+              class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+            >
+              <option value="">{p.subject}</option>
+              {subjects.map(({ value, label }) => (
+                <option value={value}>{label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label for="message" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              {l.message}
+            </label>
+            <textarea
+              id="message"
+              name="message"
+              rows="5"
+              required
+              class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors resize-y"
+              placeholder={p.message}
+            ></textarea>
+          </div>
+
+          <button
+            type="submit"
+            class="inline-flex items-center justify-center w-full gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+          >
+            <slot name="submit-icon" />
+            {l.submit}
+          </button>
+        </form>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="md:col-span-2 space-y-6">
+        <!-- Email card -->
+        <a
+          href={`mailto:${contactEmail}`}
+          class="block bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow group"
+        >
+          <div class="p-3 bg-emerald-100 dark:bg-emerald-900/50 rounded-xl w-fit mb-4">
+            <slot name="email-icon" />
+          </div>
+          <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">{email.title}</h2>
+          <p class="text-slate-600 dark:text-slate-400 text-sm mb-3 leading-relaxed">
+            {email.description}
+          </p>
+          <span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-sm font-semibold group-hover:gap-2 transition-all">
+            {contactEmail}
+            <slot name="arrow-icon" />
+          </span>
+        </a>
+
+        <!-- Quick start -->
+        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 rounded-2xl p-6 border border-blue-200 dark:border-blue-800">
+          <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">{cta.title}</h2>
+          <p class="text-slate-600 dark:text-slate-400 text-sm mb-4">
+            {cta.description}
+          </p>
+          <a
+            href={cta.href}
+            class="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-lg font-semibold text-sm hover:bg-blue-700 transition-colors"
+          >
+            {cta.label}
+            <slot name="cta-arrow-icon" />
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.getElementById('contact-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const name = (form.querySelector('#name') as HTMLInputElement).value;
+    const email = (form.querySelector('#email') as HTMLInputElement).value;
+    const subject = (form.querySelector('#subject') as HTMLSelectElement).value;
+    const message = (form.querySelector('#message') as HTMLTextAreaElement).value;
+
+    const apiUrl = form.dataset.apiUrl || '';
+    const product = form.dataset.product || '';
+    const sendingText = form.dataset.sendingText || 'Sending...';
+    const successTitle = form.dataset.successTitle || 'Message Sent!';
+    const successDescription = form.dataset.successDescription || '';
+    const errorMessage = form.dataset.errorMessage || 'Something went wrong.';
+    const submitLabel = form.dataset.submitLabel || 'Send Message';
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = sendingText;
+
+    try {
+      const response = await fetch(`${apiUrl}/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          email,
+          subject,
+          message,
+          requestType: 'Website Contact',
+          product,
+        }),
+      });
+
+      if (response.ok) {
+        form.innerHTML = `
+          <div class="text-center py-8">
+            <div class="text-emerald-500 text-5xl mb-4">&#10003;</div>
+            <h3 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">${successTitle}</h3>
+            <p class="text-slate-600 dark:text-slate-400">${successDescription}</p>
+          </div>`;
+      } else {
+        throw new Error('Failed to send');
+      }
+    } catch {
+      submitBtn.disabled = false;
+      submitBtn.textContent = submitLabel;
+      const existing = form.querySelector('.form-error');
+      if (existing) existing.remove();
+      const error = document.createElement('p');
+      error.className = 'form-error text-red-500 text-sm text-center';
+      error.textContent = errorMessage;
+      form.appendChild(error);
+    }
+  });
+</script>
