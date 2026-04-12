@@ -5,6 +5,11 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  packages: write
+  contents: read
+
 jobs:
   publish:
     uses: puglieseweb-ltd/shared-cicd/.github/workflows/npm-publish.yml@main
+    secrets: inherit
