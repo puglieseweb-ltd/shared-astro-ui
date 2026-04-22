@@ -56,6 +56,11 @@ interface Props {
   /** Submit button text while sending */
   sendingText?: string;
 
+  // ── Spam protection ──
+
+  /** Cloudflare Turnstile site key. When set, embeds the widget and sends the token. */
+  turnstileSiteKey?: string;
+
   // ── Sidebar (shown next to form) ──
 
   /** Contact email address shown in sidebar email card */
@@ -110,6 +115,7 @@ const {
   contactCards,
   companyDetailsTitle,
   companyDetails,
+  turnstileSiteKey,
 } = Astro.props;
 
 const showForm = !!apiUrl;
@@ -258,6 +264,17 @@ const error = errorMessage ?? `Something went wrong. Please try again or email u
               ></textarea>
             </div>
 
+            {/* Honeypot — invisible to humans, bots auto-fill it */}
+            <div aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;">
+              <label for="phone">Phone</label>
+              <input type="text" id="phone" name="phone" tabindex="-1" autocomplete="off" />
+            </div>
+
+            {/* Cloudflare Turnstile widget */}
+            {turnstileSiteKey && (
+              <div id="cf-turnstile" class="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="light"></div>
+            )}
+
             <button
               type="submit"
               class="inline-flex items-center justify-center w-full gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors"
@@ -329,6 +346,10 @@ const error = errorMessage ?? `Something went wrong. Please try again or email u
   </div>
 </section>
 
+{turnstileSiteKey && (
+  <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+)}
+
 {showForm && (
   <script>
     document.getElementById('contact-form')?.addEventListener('submit', async (e) => {
@@ -339,6 +360,11 @@ const error = errorMessage ?? `Something went wrong. Please try again or email u
       const email = (form.querySelector('#email') as HTMLInputElement).value;
       const subject = (form.querySelector('#subject') as HTMLSelectElement).value;
       const message = (form.querySelector('#message') as HTMLTextAreaElement).value;
+      const phone = (form.querySelector('#phone') as HTMLInputElement)?.value || undefined;
+
+      // Turnstile token (if widget is present)
+      const turnstileInput = form.querySelector('[name="cf-turnstile-response"]') as HTMLInputElement | null;
+      const cfTurnstileResponse = turnstileInput?.value || undefined;
 
       const apiUrl = form.dataset.apiUrl || '';
       const product = form.dataset.product || '';
@@ -362,6 +388,8 @@ const error = errorMessage ?? `Something went wrong. Please try again or email u
             message,
             requestType: 'Website Contact',
             product,
+            phone,
+            cfTurnstileResponse,
           }),
         });
 
@@ -378,6 +406,8 @@ const error = errorMessage ?? `Something went wrong. Please try again or email u
       } catch {
         submitBtn.disabled = false;
         submitBtn.textContent = submitLabel;
+        // Reset Turnstile widget so user can retry
+        if (window.turnstile) window.turnstile.reset();
         const existing = form.querySelector('.form-error');
         if (existing) existing.remove();
         const error = document.createElement('p');
