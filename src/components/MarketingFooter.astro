@@ -7,6 +7,7 @@ interface LinkGroup {
 interface Props {
   brandName: string;
   brandGradient?: string;
+  brandLogoSrc?: string;
   homeHref?: string;
   tagline: string;
   linkGroups: LinkGroup[];
@@ -17,6 +18,7 @@ interface Props {
 const {
   brandName,
   brandGradient = 'from-blue-400 to-indigo-400',
+  brandLogoSrc,
   tagline,
   linkGroups,
   currentLang,
@@ -31,7 +33,8 @@ const currentYear = new Date().getFullYear();
   <div class="mx-auto w-full max-w-6xl px-4 sm:px-6 py-12 sm:py-16">
     <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
       <div class="col-span-2 md:col-span-1">
-        <a href={homeHref} class="text-xl font-bold text-white">
+        <a href={homeHref} class="flex items-center gap-2 text-xl font-bold text-white">
+          {brandLogoSrc && <img src={brandLogoSrc} alt="" class="h-7 w-7 object-contain" />}
           <span class={`bg-gradient-to-r ${brandGradient} bg-clip-text text-transparent`}>{brandName}</span>
         </a>
         <p class="mt-3 text-sm leading-relaxed">{tagline}</p>
