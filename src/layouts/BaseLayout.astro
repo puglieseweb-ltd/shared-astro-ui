@@ -7,9 +7,10 @@ interface Props {
   ogImage?: string;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   noIndex?: boolean;
+  faviconHref: string;
 }
 
-const { title, description, canonicalUrl, siteName, ogImage, jsonLd, noIndex = false } = Astro.props;
+const { title, description, canonicalUrl, siteName, ogImage, jsonLd, noIndex = false, faviconHref } = Astro.props;
 ---
 
 <!doctype html>
@@ -17,7 +18,7 @@ const { title, description, canonicalUrl, siteName, ogImage, jsonLd, noIndex = f
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href={faviconHref} />
 
     <title>{title}</title>
     <meta name="description" content={description} />
