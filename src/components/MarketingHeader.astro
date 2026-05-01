@@ -56,7 +56,9 @@ if (hasI18n) {
   <nav class="mx-auto w-full max-w-6xl px-4 sm:px-6 flex items-center justify-between h-16" aria-label="Main navigation">
     <a href={homeHref} class="flex items-center gap-2 font-bold text-xl text-slate-900 dark:text-white">
       <img src={brandLogoSrc} alt="" class="h-8 w-8 object-contain dark:brightness-[10]" />
-      <span class={`bg-gradient-to-r ${brandGradient} bg-clip-text text-transparent`}>{brandName}</span>
+      <slot name="brand-text">
+        <span class={`bg-gradient-to-r ${brandGradient} bg-clip-text text-transparent`}>{brandName}</span>
+      </slot>
     </a>
 
     <!-- Desktop nav -->
