@@ -13,3 +13,29 @@ jobs:
   publish:
     uses: puglieseweb-ltd/shared-cicd/.github/workflows/npm-publish.yml@main
     secrets: inherit
+
+  notify-consumers:
+    needs: publish
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        repo:
+          - product-noteble
+          - product-systemdox
+          - product-puglieseweb
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get published version
+        id: pkg
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch update event
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.ORG_PAT }}
+          repository: puglieseweb-ltd/${{ matrix.repo }}
+          event-type: dependency-update
+          client-payload: '{"package": "@puglieseweb-ltd/shared-astro-ui", "version": "${{ steps.pkg.outputs.version }}"}'
