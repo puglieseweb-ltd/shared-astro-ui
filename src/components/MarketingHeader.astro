@@ -4,10 +4,18 @@ interface NavItem {
   href: string;
 }
 
+interface BrandTextSegment {
+  text: string;
+  color: string;
+  fontWeight?: string;
+}
+
 interface Props {
   brandName: string;
   brandGradient?: string;
   brandLogoSrc: string;
+  brandTextSegments?: BrandTextSegment[];
+  brandTextSegmentsDark?: BrandTextSegment[];
   homeHref?: string;
   navItems: NavItem[];
   ctaLabel?: string;
@@ -25,6 +33,8 @@ const {
   brandName,
   brandGradient = 'from-blue-600 to-indigo-600',
   brandLogoSrc,
+  brandTextSegments,
+  brandTextSegmentsDark,
   navItems,
   ctaLabel,
   ctaHref,
@@ -56,9 +66,32 @@ if (hasI18n) {
   <nav class="mx-auto w-full max-w-6xl px-4 sm:px-6 flex items-center justify-between h-16" aria-label="Main navigation">
     <a href={homeHref} class="flex items-center gap-2 font-bold text-xl text-slate-900 dark:text-white">
       <img src={brandLogoSrc} alt="" class="h-8 w-8 object-contain" />
-      <slot name="brand-text">
-        <span class={`bg-gradient-to-r ${brandGradient} bg-clip-text text-transparent`}>{brandName}</span>
-      </slot>
+      {brandTextSegments ? (
+        brandTextSegmentsDark ? (
+          <Fragment>
+            <span class="dark:hidden">
+              {brandTextSegments.map(seg => (
+                <span style={`color: ${seg.color}; font-weight: ${seg.fontWeight || 'inherit'}`}>{seg.text}</span>
+              ))}
+            </span>
+            <span class="hidden dark:inline">
+              {brandTextSegmentsDark.map(seg => (
+                <span style={`color: ${seg.color}; font-weight: ${seg.fontWeight || 'inherit'}`}>{seg.text}</span>
+              ))}
+            </span>
+          </Fragment>
+        ) : (
+          <span>
+            {brandTextSegments.map(seg => (
+              <span style={`color: ${seg.color}; font-weight: ${seg.fontWeight || 'inherit'}`}>{seg.text}</span>
+            ))}
+          </span>
+        )
+      ) : (
+        <slot name="brand-text">
+          <span class={`bg-gradient-to-r ${brandGradient} bg-clip-text text-transparent`}>{brandName}</span>
+        </slot>
+      )}
     </a>
 
     <!-- Desktop nav -->
