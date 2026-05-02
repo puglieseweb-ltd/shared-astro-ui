@@ -35,7 +35,9 @@ const currentYear = new Date().getFullYear();
       <div class="col-span-2 md:col-span-1">
         <a href={homeHref} class="flex items-center gap-2 text-xl font-bold text-white">
           <img src={brandLogoSrc} alt="" class="h-7 w-7 object-contain" />
-          <span class={`bg-gradient-to-r ${brandGradient} bg-clip-text text-transparent`}>{brandName}</span>
+          <slot name="brand-text">
+            <span class={`bg-gradient-to-r ${brandGradient} bg-clip-text text-transparent`}>{brandName}</span>
+          </slot>
         </a>
         <p class="mt-3 text-sm leading-relaxed">{tagline}</p>
       </div>
