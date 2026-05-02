@@ -4,10 +4,18 @@ interface LinkGroup {
   links: { label: string; href: string }[];
 }
 
+interface BrandTextSegment {
+  text: string;
+  color: string;
+  fontWeight?: string;
+}
+
 interface Props {
   brandName: string;
   brandGradient?: string;
   brandLogoSrc: string;
+  brandTextSegments?: BrandTextSegment[];
+  brandTextSegmentsDark?: BrandTextSegment[];
   homeHref?: string;
   tagline: string;
   linkGroups: LinkGroup[];
@@ -19,6 +27,8 @@ const {
   brandName,
   brandGradient = 'from-blue-400 to-indigo-400',
   brandLogoSrc,
+  brandTextSegments,
+  brandTextSegmentsDark,
   tagline,
   linkGroups,
   currentLang,
@@ -35,9 +45,17 @@ const currentYear = new Date().getFullYear();
       <div class="col-span-2 md:col-span-1">
         <a href={homeHref} class="flex items-center gap-2 text-xl font-bold text-white">
           <img src={brandLogoSrc} alt="" class="h-7 w-7 object-contain" />
-          <slot name="brand-text">
-            <span class={`bg-gradient-to-r ${brandGradient} bg-clip-text text-transparent`}>{brandName}</span>
-          </slot>
+          {brandTextSegments ? (
+            <span>
+              {(brandTextSegmentsDark || brandTextSegments).map(seg => (
+                <span style={`color: ${seg.color}; font-weight: ${seg.fontWeight || 'inherit'}`}>{seg.text}</span>
+              ))}
+            </span>
+          ) : (
+            <slot name="brand-text">
+              <span class={`bg-gradient-to-r ${brandGradient} bg-clip-text text-transparent`}>{brandName}</span>
+            </slot>
+          )}
         </a>
         <p class="mt-3 text-sm leading-relaxed">{tagline}</p>
       </div>
