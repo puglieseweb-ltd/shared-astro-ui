@@ -22,6 +22,7 @@ interface Props {
   ctaHref?: string;
   signInLabel?: string;
   signInHref?: string;
+  headerBgClass?: string;
   currentPath?: string;
   extraSlot?: boolean;
   languages?: Record<string, string>;
@@ -40,6 +41,7 @@ const {
   ctaHref,
   signInLabel,
   signInHref,
+  headerBgClass = 'bg-white/80 dark:bg-slate-900/80',
   currentPath = '',
   currentLang,
   defaultLang = 'en',
@@ -62,7 +64,7 @@ if (hasI18n) {
 }
 ---
 
-<header class="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200 dark:border-slate-800">
+<header class={`fixed top-0 left-0 right-0 z-50 ${headerBgClass} backdrop-blur-lg border-b border-slate-200 dark:border-slate-800`}>
   <nav class="mx-auto w-full max-w-6xl px-4 sm:px-6 flex items-center justify-between h-16" aria-label="Main navigation">
     <a href={homeHref} class="flex items-center gap-2 font-bold text-xl text-slate-900 dark:text-white">
       <img src={brandLogoSrc} alt="" class="h-8 w-8 object-contain" />
