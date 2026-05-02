@@ -1,0 +1,62 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  canonicalPath: string;
+  brand: {
+    name: string;
+    domain: string;
+    tagline: string;
+  };
+  faviconHref: string;
+  ogImage?: string;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  noIndex?: boolean;
+}
+
+const { title, description, canonicalPath, brand, faviconHref, ogImage, jsonLd, noIndex = false } = Astro.props;
+
+const site = Astro.site?.origin ?? `https://www.${brand.domain}`;
+const canonicalUrl = `${site}${canonicalPath}`;
+const ogImageUrl = ogImage ? `${site}${ogImage}` : undefined;
+
+const orgJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: brand.name,
+  url: `https://www.${brand.domain}`,
+  logo: `${site}${faviconHref}`,
+  description: brand.tagline,
+  parentOrganization: {
+    '@type': 'Organization',
+    name: 'puglieseweb LTD',
+  },
+};
+
+const websiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: brand.name,
+  url: site,
+};
+
+const allJsonLd = [orgJsonLd, websiteJsonLd, ...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [])];
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonicalUrl={canonicalUrl}
+  siteName={brand.name}
+  ogImage={ogImageUrl}
+  jsonLd={allJsonLd}
+  noIndex={noIndex}
+  faviconHref={faviconHref}
+>
+  <slot name="head" slot="head" />
+  <slot name="header" slot="header" />
+  <slot />
+  <slot name="footer" slot="footer" />
+</BaseLayout>
