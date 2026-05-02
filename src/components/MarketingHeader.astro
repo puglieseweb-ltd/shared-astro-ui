@@ -65,6 +65,8 @@ if (hasI18n) {
 ---
 
 <header class={`fixed top-0 left-0 right-0 z-50 ${headerBgClass} backdrop-blur-lg border-b border-slate-200 dark:border-slate-800`}>
+  <!-- Hidden checkbox for CSS-only mobile menu toggle -->
+  <input type="checkbox" id="mobile-menu-toggle" class="hidden" aria-hidden="true" />
   <nav class="mx-auto w-full max-w-6xl px-4 sm:px-6 flex items-center justify-between h-16" aria-label="Main navigation">
     <a href={homeHref} class="flex items-center gap-2 font-bold text-xl text-slate-900 dark:text-white">
       <img src={brandLogoSrc} alt="" class="h-8 w-8 object-contain" />
@@ -143,26 +145,19 @@ if (hasI18n) {
       )}
     </div>
 
-    <!-- Mobile menu button -->
-    <button
-      id="mobile-menu-btn"
-      type="button"
-      class="md:hidden p-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-      aria-expanded="false"
-      aria-controls="mobile-menu"
-      aria-label="Toggle navigation menu"
-    >
-      <svg id="menu-open-icon" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+    <!-- Mobile menu label -->
+    <label for="mobile-menu-toggle" class="md:hidden p-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer" aria-label="Toggle navigation menu">
+      <svg class="mobile-menu-open w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
       </svg>
-      <svg id="menu-close-icon" class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <svg class="mobile-menu-close w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
       </svg>
-    </button>
+    </label>
   </nav>
 
   <!-- Mobile menu -->
-  <div id="mobile-menu" class="md:hidden hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+  <div class="mobile-menu-panel border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
     <ul class="px-4 py-4 space-y-2">
       {navItems.map(({ label, href }) => (
         <li>
@@ -204,17 +199,13 @@ if (hasI18n) {
   </div>
 </header>
 
-<script>
-  const btn = document.getElementById('mobile-menu-btn');
-  const menu = document.getElementById('mobile-menu');
-  const openIcon = document.getElementById('menu-open-icon');
-  const closeIcon = document.getElementById('menu-close-icon');
-
-  btn?.addEventListener('click', () => {
-    const expanded = btn.getAttribute('aria-expanded') === 'true';
-    btn.setAttribute('aria-expanded', String(!expanded));
-    menu?.classList.toggle('hidden');
-    openIcon?.classList.toggle('hidden');
-    closeIcon?.classList.toggle('hidden');
-  });
-</script>
+<style is:global>
+  .mobile-menu-close,
+  .mobile-menu-panel { display: none; }
+  #mobile-menu-toggle:checked ~ nav .mobile-menu-open { display: none; }
+  #mobile-menu-toggle:checked ~ nav .mobile-menu-close { display: block; }
+  #mobile-menu-toggle:checked ~ .mobile-menu-panel { display: block; }
+  @media (min-width: 768px) {
+    .mobile-menu-panel { display: none !important; }
+  }
+</style>
