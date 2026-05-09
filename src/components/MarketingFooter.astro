@@ -44,7 +44,7 @@ const currentYear = new Date().getFullYear();
     <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
       <div class="col-span-2 md:col-span-1">
         <a href={homeHref} class="flex items-center gap-2 text-xl font-bold text-white">
-          <img src={brandLogoSrc} alt="" class="h-7 w-7 object-contain" />
+          <img src={brandLogoSrc} alt={brandName} class="h-7 w-7 object-contain" />
           {brandTextSegments ? (
             <span>
               {(brandTextSegmentsDark || brandTextSegments).map(seg => (
