@@ -264,10 +264,12 @@ const error = errorMessage ?? `Something went wrong. Please try again or email u
               ></textarea>
             </div>
 
-            {/* Honeypot — invisible to humans, bots auto-fill it */}
+            {/* Honeypot — invisible to humans, bots auto-fill it.
+                 Field deliberately avoids real names like "phone" or "url"
+                 so browser/extension autofill won't trigger a false positive. */}
             <div aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;">
-              <label for="phone">Phone</label>
-              <input type="text" id="phone" name="phone" tabindex="-1" autocomplete="off" />
+              <label for="hp_field">Leave blank</label>
+              <input type="text" id="hp_field" name="hp_field" tabindex="-1" autocomplete="nope" />
             </div>
 
             {/* Cloudflare Turnstile widget */}
@@ -360,7 +362,7 @@ const error = errorMessage ?? `Something went wrong. Please try again or email u
       const email = (form.querySelector('#email') as HTMLInputElement).value;
       const subject = (form.querySelector('#subject') as HTMLSelectElement).value;
       const message = (form.querySelector('#message') as HTMLTextAreaElement).value;
-      const phone = (form.querySelector('#phone') as HTMLInputElement)?.value || undefined;
+      const phone = (form.querySelector('#hp_field') as HTMLInputElement)?.value || undefined;
 
       // Turnstile token (if widget is present)
       const turnstileInput = form.querySelector('[name="cf-turnstile-response"]') as HTMLInputElement | null;
