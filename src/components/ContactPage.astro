@@ -61,6 +61,9 @@ interface Props {
   /** Cloudflare Turnstile site key. When set, embeds the widget and sends the token. */
   turnstileSiteKey?: string;
 
+  /** Optional title shown above the contact form */
+  formTitle?: string;
+
   // ── Sidebar (shown next to form) ──
 
   /** Contact email address shown in sidebar email card */
@@ -116,6 +119,7 @@ const {
   companyDetailsTitle,
   companyDetails,
   turnstileSiteKey,
+  formTitle,
 } = Astro.props;
 
 const showForm = !!apiUrl;
@@ -193,6 +197,9 @@ const error = errorMessage ?? `Something went wrong. Please try again or email u
       <div class="grid md:grid-cols-5 gap-8 max-w-4xl mx-auto">
         {/* Contact Form */}
         <div class="md:col-span-3">
+          {formTitle && (
+            <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-6">{formTitle}</h2>
+          )}
           <form
             id="contact-form"
             class="bg-white dark:bg-slate-800 rounded-2xl p-8 border border-slate-200 dark:border-slate-700 shadow-sm space-y-6"
