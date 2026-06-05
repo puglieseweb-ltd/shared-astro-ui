@@ -296,6 +296,23 @@ const error = errorMessage ?? `Something went wrong. Please try again or email u
 
         {/* Sidebar */}
         <div class="md:col-span-2 space-y-6">
+          {/* Company details */}
+          {showCompanyDetails && (
+            <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700">
+              {companyDetailsTitle && (
+                <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{companyDetailsTitle}</h2>
+              )}
+              <dl class="mt-4 space-y-3 text-sm text-slate-600 dark:text-slate-400">
+                {companyDetails.map((detail) => (
+                  <div>
+                    <dt class="font-medium text-slate-900 dark:text-slate-100">{detail.label}</dt>
+                    <dd>{detail.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )}
+
           {/* Email card */}
           {contactEmail && (
             <a
@@ -336,22 +353,6 @@ const error = errorMessage ?? `Something went wrong. Please try again or email u
       </div>
     )}
 
-    {/* ── Company details ── */}
-    {showCompanyDetails && (
-      <div class="mt-12 bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-8 border border-slate-200 dark:border-slate-700">
-        {companyDetailsTitle && (
-          <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">{companyDetailsTitle}</h2>
-        )}
-        <dl class="mt-4 space-y-3 text-sm text-slate-600 dark:text-slate-400">
-          {companyDetails.map((detail) => (
-            <div>
-              <dt class="font-medium text-slate-900 dark:text-slate-100">{detail.label}</dt>
-              <dd>{detail.value}</dd>
-            </div>
-          ))}
-        </dl>
-      </div>
-    )}
   </div>
 </section>
 
