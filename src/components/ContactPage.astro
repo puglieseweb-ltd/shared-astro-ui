@@ -319,11 +319,6 @@ const error = errorMessage ?? `Something went wrong. Please try again or email u
               href={`mailto:${contactEmail}`}
               class="block bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow group"
             >
-              {Astro.slots.has('email-icon') && (
-                <div class="p-3 bg-emerald-100 dark:bg-emerald-900/50 rounded-xl w-fit mb-4">
-                  <slot name="email-icon" />
-                </div>
-              )}
               <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">{email.title}</h2>
               <p class="text-slate-600 dark:text-slate-400 text-sm mb-3 leading-relaxed">
                 {email.description}
@@ -367,13 +362,17 @@ const error = errorMessage ?? `Something went wrong. Please try again or email u
 
 {showForm && (
   <script>
-    // Honeypot protection: clear any browser-autofilled value on load,
-    // then only flag it as spam if the user (or a bot) explicitly changes it.
+    // Honeypot protection: only flag the field as dirty when the user (or bot)
+    // explicitly interacts with it. Browser autofill fills off-screen fields
+    // without giving them focus, so we gate on focus before input — autofill
+    // fires `input` but never `focus` on a field at left:-9999px.
     const _hpInput = document.getElementById('hp_field') as HTMLInputElement | null;
+    let _hpFocused = false;
     let _hpDirty = false;
     if (_hpInput) {
       _hpInput.value = '';
-      _hpInput.addEventListener('input', () => { _hpDirty = true; });
+      _hpInput.addEventListener('focus', () => { _hpFocused = true; });
+      _hpInput.addEventListener('input', () => { if (_hpFocused) _hpDirty = true; });
     }
 
     document.getElementById('contact-form')?.addEventListener('submit', async (e) => {
