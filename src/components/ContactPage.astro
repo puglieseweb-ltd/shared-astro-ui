@@ -276,7 +276,7 @@ const error = errorMessage ?? `Something went wrong. Please try again or email u
                  so browser/extension autofill won't trigger a false positive. */}
             <div aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;">
               <label for="hp_field">Leave blank</label>
-              <input type="text" id="hp_field" name="hp_field" tabindex="-1" autocomplete="nope" />
+              <input type="text" id="hp_field" name="hp_field" tabindex="-1" autocomplete="off" />
             </div>
 
             {/* Cloudflare Turnstile widget */}
@@ -367,6 +367,15 @@ const error = errorMessage ?? `Something went wrong. Please try again or email u
 
 {showForm && (
   <script>
+    // Honeypot protection: clear any browser-autofilled value on load,
+    // then only flag it as spam if the user (or a bot) explicitly changes it.
+    const _hpInput = document.getElementById('hp_field') as HTMLInputElement | null;
+    let _hpDirty = false;
+    if (_hpInput) {
+      _hpInput.value = '';
+      _hpInput.addEventListener('input', () => { _hpDirty = true; });
+    }
+
     document.getElementById('contact-form')?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const form = e.target as HTMLFormElement;
@@ -375,7 +384,7 @@ const error = errorMessage ?? `Something went wrong. Please try again or email u
       const email = (form.querySelector('#email') as HTMLInputElement).value;
       const subject = (form.querySelector('#subject') as HTMLSelectElement).value;
       const message = (form.querySelector('#message') as HTMLTextAreaElement).value;
-      const phone = (form.querySelector('#hp_field') as HTMLInputElement)?.value || undefined;
+      const phone = (_hpDirty && _hpInput?.value) ? _hpInput.value : undefined;
 
       // Turnstile token (if widget is present)
       const turnstileInput = form.querySelector('[name="cf-turnstile-response"]') as HTMLInputElement | null;
