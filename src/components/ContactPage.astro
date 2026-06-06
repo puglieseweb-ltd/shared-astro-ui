@@ -319,9 +319,11 @@ const error = errorMessage ?? `Something went wrong. Please try again or email u
               href={`mailto:${contactEmail}`}
               class="block bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-shadow group"
             >
-              <div class="p-3 bg-emerald-100 dark:bg-emerald-900/50 rounded-xl w-fit mb-4">
-                <slot name="email-icon" />
-              </div>
+              {Astro.slots.has('email-icon') && (
+                <div class="p-3 bg-emerald-100 dark:bg-emerald-900/50 rounded-xl w-fit mb-4">
+                  <slot name="email-icon" />
+                </div>
+              )}
               <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">{email.title}</h2>
               <p class="text-slate-600 dark:text-slate-400 text-sm mb-3 leading-relaxed">
                 {email.description}
