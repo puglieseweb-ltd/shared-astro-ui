@@ -92,6 +92,13 @@ interface Props {
   companyDetailsTitle?: string;
   /** Key-value company details (e.g. Company, Location) */
   companyDetails?: CompanyDetail[];
+
+  // ── Heading style overrides ──
+
+  /** Tailwind classes for the h1 element. Defaults to the large gradient-highlight style. */
+  headingClass?: string;
+  /** Tailwind classes for the highlighted span inside the h1. Pass empty string to disable the gradient. */
+  highlightClass?: string;
 }
 
 const {
@@ -120,6 +127,8 @@ const {
   companyDetails,
   turnstileSiteKey,
   formTitle,
+  headingClass = 'text-4xl sm:text-5xl font-extrabold tracking-tight mb-6',
+  highlightClass = 'bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent',
 } = Astro.props;
 
 const showForm = !!apiUrl;
@@ -168,9 +177,9 @@ const emailHref = `mailto:${emailDisplay}`;
 <section class="pt-28 pb-16 sm:pt-36 sm:pb-20">
   <div class="mx-auto w-full max-w-4xl px-4 sm:px-6">
     <div class="text-center mb-12">
-      <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight mb-6">
-        {headingPrefix}{' '}
-        <span class="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{headingHighlight}</span>
+      <h1 class={headingClass}>
+        {headingPrefix}{headingHighlight && ' '}
+        {headingHighlight && <span class={highlightClass}>{headingHighlight}</span>}
       </h1>
       <p class="text-lg sm:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
         {subtitle}
