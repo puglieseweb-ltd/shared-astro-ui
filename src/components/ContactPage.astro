@@ -283,14 +283,22 @@ const emailHref = `mailto:${emailDisplay}`;
               <input type="text" id="hp_field" name="hp_field" tabindex="-1" autocomplete="off" />
             </div>
 
-            {/* Cloudflare Turnstile widget */}
+            {/* Cloudflare Turnstile widget — callbacks enable/disable submit */}
             {turnstileSiteKey && (
-              <div id="cf-turnstile" class="cf-turnstile" data-sitekey={turnstileSiteKey} data-theme="light"></div>
+              <div
+                id="cf-turnstile"
+                class="cf-turnstile"
+                data-sitekey={turnstileSiteKey}
+                data-theme="light"
+                data-callback="onTurnstileSuccess"
+                data-expired-callback="onTurnstileExpiry"
+              ></div>
             )}
 
             <button
               type="submit"
-              class="inline-flex items-center justify-center w-full gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+              disabled={!!turnstileSiteKey || undefined}
+              class="inline-flex items-center justify-center w-full gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <slot name="submit-icon" />
               {l.submit}
@@ -366,6 +374,13 @@ const emailHref = `mailto:${emailDisplay}`;
 
 {showForm && (
   <script>
+    // Turnstile callbacks — must be on window so Cloudflare can invoke them.
+    // The submit button starts disabled (set server-side) and is enabled only
+    // after the widget completes; it goes disabled again on token expiry.
+    const _submitBtn = document.querySelector<HTMLButtonElement>('#contact-form button[type="submit"]');
+    (window as any).onTurnstileSuccess = () => { if (_submitBtn) _submitBtn.disabled = false; };
+    (window as any).onTurnstileExpiry  = () => { if (_submitBtn) _submitBtn.disabled = true; };
+
     // Honeypot protection: only flag the field as dirty when the user (or bot)
     // explicitly interacts with it. Browser autofill fills off-screen fields
     // without giving them focus, so we gate on focus before input — autofill
