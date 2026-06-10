@@ -98,17 +98,18 @@ if (hasI18n) {
       )}
     </a>
 
-    <!-- Desktop nav -->
-    <ul class="hidden md:flex items-center gap-8">
+    <!-- Desktop nav (dock magnification) -->
+    <ul class="hidden md:flex items-center gap-8" data-dock-nav>
       {navItems.map(({ label, href }) => (
-        <li>
+        <li class="dock-item relative">
+          <span class="dock-glow"></span>
           <a
             href={href}
             class:list={[
-              'text-sm font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-400',
+              'dock-link relative z-10 font-medium inline-block px-3 py-1.5 rounded-lg',
               currentPath === href || currentPath === `${href}/`
-                ? 'text-blue-600 dark:text-blue-400'
-                : 'text-slate-600 dark:text-slate-400',
+                ? 'text-blue-600 dark:text-blue-400 font-semibold text-[0.9375rem]'
+                : 'text-slate-600 dark:text-slate-400 text-sm',
             ]}
           >
             {label}
@@ -208,4 +209,58 @@ if (hasI18n) {
   @media (min-width: 768px) {
     .mobile-menu-panel { display: none !important; }
   }
+  .dock-link {
+    transition: transform 0.25s ease-out, color 0.15s ease;
+    will-change: transform;
+  }
+  .dock-glow {
+    position: absolute;
+    inset: -4px -8px;
+    border-radius: 12px;
+    background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.25), transparent 70%);
+    filter: blur(10px);
+    opacity: 0;
+    transition: opacity 0.25s ease-out;
+    pointer-events: none;
+    z-index: 0;
+  }
 </style>
+
+<script>
+  const nav = document.querySelector('[data-dock-nav]');
+  if (nav) {
+    const items = Array.from(nav.querySelectorAll('.dock-item'));
+    const RADIUS = 100; // px — how far the effect spreads
+    const MAX_LIFT = -3; // px — peak vertical lift
+
+    function resetAll() {
+      items.forEach((item) => {
+        const link = item.querySelector('.dock-link') as HTMLElement;
+        const glow = item.querySelector('.dock-glow') as HTMLElement;
+        link.style.transform = '';
+        glow.style.opacity = '0';
+      });
+    }
+
+    nav.addEventListener('mousemove', (e: Event) => {
+      const mouseX = (e as MouseEvent).clientX;
+      items.forEach((item) => {
+        const link = item.querySelector('.dock-link') as HTMLElement;
+        const glow = item.querySelector('.dock-glow') as HTMLElement;
+        const rect = (item as HTMLElement).getBoundingClientRect();
+        const center = rect.left + rect.width / 2;
+        const dist = Math.abs(mouseX - center);
+        if (dist < RADIUS) {
+          const t = 1 - dist / RADIUS;
+          link.style.transform = `translateY(${(MAX_LIFT * t).toFixed(1)}px)`;
+          glow.style.opacity = t.toFixed(3);
+        } else {
+          link.style.transform = '';
+          glow.style.opacity = '0';
+        }
+      });
+    });
+
+    nav.addEventListener('mouseleave', resetAll);
+  }
+</script>
