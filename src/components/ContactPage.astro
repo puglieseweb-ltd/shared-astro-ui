@@ -276,11 +276,12 @@ const emailHref = `mailto:${emailDisplay}`;
             </div>
 
             {/* Honeypot — invisible to humans, bots auto-fill it.
-                 Field deliberately avoids real names like "phone" or "url"
-                 so browser/extension autofill won't trigger a false positive. */}
-            <div aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;">
-              <label for="hp_field">Leave blank</label>
-              <input type="text" id="hp_field" name="hp_field" tabindex="-1" autocomplete="off" />
+                 Uses autocomplete="new-password" (browsers reliably skip this),
+                 height:0 + overflow:hidden (more reliable than off-screen positioning),
+                 and a nonsense name/id to avoid pattern-matching autofill. */}
+            <div aria-hidden="true" style="position:absolute;left:-9999px;top:-9999px;height:0;overflow:hidden;">
+              <label for="pwcf_x9">Leave blank</label>
+              <input type="text" id="pwcf_x9" name="pwcf_x9" tabindex="-1" autocomplete="new-password" />
             </div>
 
             {/* Cloudflare Turnstile widget — callbacks enable/disable submit */}
@@ -385,7 +386,7 @@ const emailHref = `mailto:${emailDisplay}`;
     // explicitly interacts with it. Browser autofill fills off-screen fields
     // without giving them focus, so we gate on focus before input — autofill
     // fires `input` but never `focus` on a field at left:-9999px.
-    const _hpInput = document.getElementById('hp_field') as HTMLInputElement | null;
+    const _hpInput = document.getElementById('pwcf_x9') as HTMLInputElement | null;
     let _hpFocused = false;
     let _hpDirty = false;
     if (_hpInput) {
