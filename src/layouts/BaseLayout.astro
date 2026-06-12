@@ -8,13 +8,14 @@ interface Props {
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   noIndex?: boolean;
   faviconHref: string;
+  lang?: string;
 }
 
-const { title, description, canonicalUrl, siteName, ogImage, jsonLd, noIndex = false, faviconHref } = Astro.props;
+const { title, description, canonicalUrl, siteName, ogImage, jsonLd, noIndex = false, faviconHref, lang = 'en' } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="en" class="scroll-smooth">
+<html lang={lang} class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -45,8 +46,9 @@ const { title, description, canonicalUrl, siteName, ogImage, jsonLd, noIndex = f
     <slot name="head" />
   </head>
   <body class="min-h-screen bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 antialiased">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:rounded-lg focus:bg-blue-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg focus:outline-none">Skip to main content</a>
     <slot name="header" />
-    <main>
+    <main id="main-content">
       <slot />
     </main>
     <slot name="footer" />
