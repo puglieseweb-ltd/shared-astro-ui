@@ -2,6 +2,7 @@
 interface NavItem {
   label: string;
   href: string;
+  cta?: boolean;
 }
 
 interface BrandTextSegment {
@@ -100,16 +101,20 @@ if (hasI18n) {
 
     <!-- Desktop nav (dock magnification) -->
     <ul class="hidden md:flex items-center gap-8" data-dock-nav>
-      {navItems.map(({ label, href }) => (
+      {navItems.map(({ label, href, cta }) => (
         <li class="dock-item relative">
-          <span class="dock-glow"></span>
+          {!cta && <span class="dock-glow"></span>}
           <a
             href={href}
             class:list={[
-              'dock-link relative z-10 font-medium inline-block px-3 py-1.5 rounded-lg',
-              currentPath === href || currentPath === `${href}/`
-                ? 'text-blue-600 dark:text-blue-400 font-semibold text-[0.9375rem]'
-                : 'text-slate-600 dark:text-slate-400 text-sm',
+              cta
+                ? 'relative z-10 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-8 py-3 text-base font-semibold text-white shadow-lg shadow-blue-600/25 transition-all hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-blue-500/30'
+                : [
+                    'dock-link relative z-10 font-medium inline-block px-3 py-1.5 rounded-lg',
+                    currentPath === href || currentPath === `${href}/`
+                      ? 'text-blue-600 dark:text-blue-400 font-semibold text-[0.9375rem]'
+                      : 'text-slate-600 dark:text-slate-400 text-sm',
+                  ],
             ]}
           >
             {label}
@@ -128,20 +133,20 @@ if (hasI18n) {
           {otherLangLabel}
         </a>
       )}
+      {ctaLabel && ctaHref && (
+        <a
+          href={ctaHref}
+          class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/25 transition-all hover:-translate-y-0.5 hover:bg-blue-500 hover:shadow-blue-500/30"
+        >
+          {ctaLabel}
+        </a>
+      )}
       {signInLabel && signInHref && (
         <a
           href={signInHref}
           class="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
         >
           {signInLabel}
-        </a>
-      )}
-      {ctaLabel && ctaHref && (
-        <a
-          href={ctaHref}
-          class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          {ctaLabel}
         </a>
       )}
     </div>
@@ -160,15 +165,17 @@ if (hasI18n) {
   <!-- Mobile menu -->
   <div class="mobile-menu-panel border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
     <ul class="px-4 py-4 space-y-2">
-      {navItems.map(({ label, href }) => (
+      {navItems.map(({ label, href, cta }) => (
         <li>
           <a
             href={href}
             class:list={[
               'block px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-              currentPath === href || currentPath === `${href}/`
-                ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
-                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800',
+              cta
+                ? 'text-blue-600 dark:text-blue-400 font-semibold'
+                : currentPath === href || currentPath === `${href}/`
+                  ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800',
             ]}
           >
             {label}
