@@ -28,9 +28,14 @@ export interface ContentVariant {
 export interface ContentItem {
   contentKey: string;
   type: string;
-  activeIndex: number;
-  activeVariant: ContentVariant;
-  variants: ContentVariant[];
+  /** Structured content fields (engagement-step, testimonial, etc.) */
+  data?: Record<string, unknown>;
+  /** A/B test variant index (homepage-slogan) */
+  activeIndex?: number;
+  /** A/B test active variant (homepage-slogan) */
+  activeVariant?: ContentVariant;
+  /** A/B test variants list (homepage-slogan) */
+  variants?: ContentVariant[];
   updatedAt: string;
 }
 
@@ -94,5 +99,17 @@ export function createWebContent(config: WebContentConfig) {
     }
   }
 
-  return { getActiveContent, getAllContent };
+  /**
+   * Fetch all content items of a type and extract their data fields.
+   * Convenience wrapper over getAllContent for structured content types
+   * (engagement-step, testimonial, faq, etc.).
+   */
+  async function getContentData<T = Record<string, unknown>>(type: string): Promise<T[]> {
+    const items = await getAllContent(type);
+    return items
+      .filter((item) => item.data != null)
+      .map((item) => item.data as T);
+  }
+
+  return { getActiveContent, getAllContent, getContentData };
 }
