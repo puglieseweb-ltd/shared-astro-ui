@@ -1,0 +1,313 @@
+---
+interface Props {
+  /** Google Analytics measurement ID (e.g. G-XXXXXXXXXX). Omit to skip GA loading. */
+  gaId?: string;
+  /** localStorage key for persisting consent. Defaults to 'pweb_cookie_consent'. */
+  consentKey?: string;
+  /** Banner message text */
+  message: string;
+  /** Accept button label */
+  acceptLabel: string;
+  /** Decline button label */
+  declineLabel: string;
+  /** "Learn more" link label */
+  learnMoreLabel: string;
+  /** URL the "Learn more" link points to (e.g. /cookie-policy) */
+  learnMoreHref: string;
+  /** Settings panel title */
+  settingsTitle?: string;
+  /** Settings panel description */
+  settingsDescription?: string;
+  /** Label for the essential cookies row */
+  essentialLabel?: string;
+  /** Description for essential cookies */
+  essentialDescription?: string;
+  /** Label for the analytics cookies row */
+  analyticsLabel?: string;
+  /** Description for analytics cookies */
+  analyticsDescription?: string;
+  /** Save preferences button label */
+  saveLabel?: string;
+  /** "Always on" badge text for essential cookies */
+  alwaysOnLabel?: string;
+}
+
+const {
+  gaId,
+  consentKey = 'pweb_cookie_consent',
+  message,
+  acceptLabel,
+  declineLabel,
+  learnMoreLabel,
+  learnMoreHref,
+  settingsTitle = 'Cookie Settings',
+  settingsDescription = 'Choose which cookies you allow. Essential cookies are required for the site to function.',
+  essentialLabel = 'Essential Cookies',
+  essentialDescription = 'Required for the website to function. These cannot be disabled.',
+  analyticsLabel = 'Analytics Cookies',
+  analyticsDescription = 'Help us understand how visitors use our site so we can improve it.',
+  saveLabel = 'Save preferences',
+  alwaysOnLabel = 'Always on',
+} = Astro.props;
+---
+
+<!-- Consent banner -->
+<div
+  id="cookie-banner"
+  class="fixed bottom-0 left-0 right-0 z-50 hidden"
+  role="dialog"
+  aria-label="Cookie consent"
+>
+  <div class="mx-auto max-w-4xl px-4 pb-4">
+    <div class="rounded-2xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-5 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center gap-4">
+      <p class="flex-1 text-sm text-gray-600 dark:text-gray-400">
+        {message}{' '}
+        <a href={learnMoreHref} class="text-blue-600 hover:text-blue-500 underline">
+          {learnMoreLabel}
+        </a>
+      </p>
+      <div class="flex items-center gap-3 shrink-0">
+        <button
+          id="cookie-decline"
+          class="px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+        >
+          {declineLabel}
+        </button>
+        <button
+          id="cookie-accept"
+          class="px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-lg transition-colors"
+        >
+          {acceptLabel}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings panel -->
+<div
+  id="cookie-settings"
+  class="fixed inset-0 z-[60] hidden"
+  role="dialog"
+  aria-label="Cookie settings"
+  aria-modal="true"
+>
+  <div id="cookie-settings-backdrop" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+  <div class="absolute inset-0 flex items-center justify-center p-4">
+    <div class="relative w-full max-w-lg rounded-2xl border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 shadow-2xl">
+      <button
+        id="cookie-settings-close"
+        class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+        aria-label="Close"
+      >
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-white">{settingsTitle}</h2>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{settingsDescription}</p>
+
+      <div class="mt-6 space-y-4">
+        <!-- Essential cookies (always on) -->
+        <div class="flex items-start justify-between gap-4 rounded-lg border border-gray-100 dark:border-slate-700 p-4">
+          <div>
+            <p class="text-sm font-medium text-gray-900 dark:text-white">{essentialLabel}</p>
+            <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{essentialDescription}</p>
+          </div>
+          <span class="shrink-0 rounded-full bg-gray-100 dark:bg-slate-700 px-3 py-1 text-xs font-medium text-gray-500 dark:text-gray-400">
+            {alwaysOnLabel}
+          </span>
+        </div>
+
+        <!-- Analytics cookies (toggle) -->
+        <div class="flex items-start justify-between gap-4 rounded-lg border border-gray-100 dark:border-slate-700 p-4">
+          <div>
+            <p class="text-sm font-medium text-gray-900 dark:text-white">{analyticsLabel}</p>
+            <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{analyticsDescription}</p>
+          </div>
+          <button
+            id="cookie-analytics-toggle"
+            role="switch"
+            aria-checked="false"
+            class="relative shrink-0 h-6 w-11 rounded-full bg-gray-200 dark:bg-slate-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+          >
+            <span class="pointer-events-none block h-5 w-5 translate-x-0.5 rounded-full bg-white shadow-sm ring-0 transition-transform" />
+          </button>
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end">
+        <button
+          id="cookie-settings-save"
+          class="px-5 py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-lg transition-colors"
+        >
+          {saveLabel}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ gaId, consentKey }}>
+  (function () {
+    var CONSENT_KEY = consentKey;
+    var banner = document.getElementById('cookie-banner');
+    var settingsPanel = document.getElementById('cookie-settings');
+    var analyticsToggle = document.getElementById('cookie-analytics-toggle');
+    var stored = localStorage.getItem(CONSENT_KEY);
+
+    /* ── Google Analytics ──────────────────────────── */
+
+    function loadGA() {
+      if (!gaId || document.getElementById('cookie-ga-script')) return;
+      var s = document.createElement('script');
+      s.id = 'cookie-ga-script';
+      s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=' + gaId;
+      document.head.appendChild(s);
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { window.dataLayer.push(arguments); }
+      window.gtag = gtag;
+      gtag('js', new Date());
+      gtag('config', gaId, { anonymize_ip: true });
+    }
+
+    function removeGA() {
+      var script = document.getElementById('cookie-ga-script');
+      if (script) script.remove();
+      window.gtag = undefined;
+      window.dataLayer = undefined;
+
+      // Remove GA cookies
+      document.cookie.split(';').forEach(function (c) {
+        var name = c.split('=')[0].trim();
+        if (name.indexOf('_ga') === 0 || name.indexOf('_gid') === 0) {
+          document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=.' + location.hostname;
+          document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
+        }
+      });
+    }
+
+    function trackEvents() {
+      if (!window.gtag) return;
+      document.querySelectorAll('a[href^="https://noteble"], a[href^="https://systemdox"], a[href^="https://portal"]').forEach(function (link) {
+        link.addEventListener('click', function () {
+          window.gtag('event', 'outbound_click', {
+            event_category: 'engagement',
+            event_label: link.getAttribute('href'),
+          });
+        });
+      });
+      document.querySelectorAll('a[href*="/contact"], a[href*="/pricing"], a[href*="/book"], a[href*="/start"]').forEach(function (link) {
+        link.addEventListener('click', function () {
+          window.gtag('event', 'cta_click', {
+            event_category: 'conversion',
+            event_label: link.textContent.trim().substring(0, 50),
+            event_value: link.getAttribute('href'),
+          });
+        });
+      });
+    }
+
+    /* ── Toggle helpers ─────────────────────────────── */
+
+    function setToggle(on) {
+      analyticsToggle.setAttribute('aria-checked', on ? 'true' : 'false');
+      var knob = analyticsToggle.querySelector('span');
+      if (on) {
+        analyticsToggle.classList.remove('bg-gray-200', 'dark:bg-slate-600');
+        analyticsToggle.classList.add('bg-blue-600');
+        knob.classList.remove('translate-x-0.5');
+        knob.classList.add('translate-x-[1.375rem]');
+      } else {
+        analyticsToggle.classList.add('bg-gray-200', 'dark:bg-slate-600');
+        analyticsToggle.classList.remove('bg-blue-600');
+        knob.classList.add('translate-x-0.5');
+        knob.classList.remove('translate-x-[1.375rem]');
+      }
+    }
+
+    function isToggleOn() {
+      return analyticsToggle.getAttribute('aria-checked') === 'true';
+    }
+
+    /* ── Settings panel ─────────────────────────────── */
+
+    function openSettings() {
+      banner.classList.add('hidden');
+      setToggle(stored === 'accepted');
+      settingsPanel.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSettings() {
+      settingsPanel.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    /* ── Consent actions ────────────────────────────── */
+
+    function acceptAll() {
+      localStorage.setItem(CONSENT_KEY, 'accepted');
+      stored = 'accepted';
+      banner.classList.add('hidden');
+      closeSettings();
+      loadGA();
+      setTimeout(trackEvents, 500);
+    }
+
+    function declineAll() {
+      localStorage.setItem(CONSENT_KEY, 'declined');
+      stored = 'declined';
+      banner.classList.add('hidden');
+      closeSettings();
+      removeGA();
+    }
+
+    function saveSettings() {
+      if (isToggleOn()) {
+        acceptAll();
+      } else {
+        declineAll();
+      }
+    }
+
+    /* ── Init ───────────────────────────────────────── */
+
+    if (stored === 'accepted') {
+      loadGA();
+      trackEvents();
+    } else if (stored !== 'declined') {
+      banner.classList.remove('hidden');
+    }
+
+    /* ── Event listeners ────────────────────────────── */
+
+    document.getElementById('cookie-accept').addEventListener('click', acceptAll);
+    document.getElementById('cookie-decline').addEventListener('click', declineAll);
+    document.getElementById('cookie-settings-save').addEventListener('click', saveSettings);
+    document.getElementById('cookie-settings-close').addEventListener('click', closeSettings);
+    document.getElementById('cookie-settings-backdrop').addEventListener('click', closeSettings);
+
+    analyticsToggle.addEventListener('click', function () {
+      setToggle(!isToggleOn());
+    });
+
+    // Any link with href="#cookie-settings" opens the settings panel
+    document.addEventListener('click', function (e) {
+      var link = e.target.closest('a[href="#cookie-settings"]');
+      if (link) {
+        e.preventDefault();
+        openSettings();
+      }
+    });
+
+    // Escape key closes settings
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !settingsPanel.classList.contains('hidden')) {
+        closeSettings();
+      }
+    });
+  })();
+</script>
