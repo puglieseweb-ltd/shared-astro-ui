@@ -12,7 +12,8 @@
  *         navSelector: '.sidebar-nav',
  *         navDataUrl: '/repo/_assets/nav-data.json',
  *         searchApiUrl: 'https://api.puglieseweb.com/search',
- *         searchType: 'docs'
+ *         searchType: 'docs',
+ *         tenant: 'puglieseweb'
  *       });
  *     });
  *   </script>
@@ -85,7 +86,8 @@
 
     _abortCtrl = new AbortController();
     var typeParam = _cfg.searchType ? '&type=' + encodeURIComponent(_cfg.searchType) : '';
-    var url = _cfg.searchApiUrl + '/articles?q=' + encodeURIComponent(q) + typeParam;
+    var tenantParam = _cfg.tenant ? '&tenant=' + encodeURIComponent(_cfg.tenant) : '';
+    var url = _cfg.searchApiUrl + '/articles?q=' + encodeURIComponent(q) + typeParam + tenantParam;
 
     fetch(url, { signal: _abortCtrl.signal })
       .then(function (r) { return r.json(); })
@@ -241,6 +243,7 @@
     if (!_cfg.navDataUrl) _cfg.navDataUrl = window.__navDataUrl || '';
     if (!_cfg.searchApiUrl) _cfg.searchApiUrl = window.__searchApiUrl || '';
     if (!_cfg.searchType) _cfg.searchType = window.__searchType || 'docs';
+    if (!_cfg.tenant) _cfg.tenant = window.__searchTenant || '';
     if (!_cfg.inputSelector) _cfg.inputSelector = '#search-input';
     if (!_cfg.resultsSelector) _cfg.resultsSelector = '#search-results';
     if (!_cfg.navSelector) _cfg.navSelector = '.sidebar-nav';
