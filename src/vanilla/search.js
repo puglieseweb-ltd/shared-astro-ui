@@ -149,7 +149,7 @@
 
     _resultsBox.innerHTML = html;
     _resultsBox.classList.add('active');
-    if (_navEl) _navEl.style.display = 'none';
+    if (_navEl && !_resultsBox.closest('.header-search')) _navEl.style.display = 'none';
 
     // Remove spinner if present
     var spinner = _resultsBox.querySelector('.search-spinner');
@@ -170,7 +170,7 @@
     _resultsBox.classList.remove('active');
     _resultsBox.innerHTML = '';
     _activeIndex = -1;
-    if (_navEl) _navEl.style.display = '';
+    if (_navEl && !_resultsBox.closest('.header-search')) _navEl.style.display = '';
   }
 
   function navigateResults(direction) {
