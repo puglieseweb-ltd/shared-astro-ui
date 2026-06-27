@@ -99,6 +99,41 @@
       });
     }
 
+    // ── Desktop sidebar toggle ─────────────────────────────────
+    var sidebarToggle = document.querySelector('.sidebar-toggle');
+    if (sidebarToggle && sidebar) {
+      // Restore saved sidebar state
+      var SIDEBAR_KEY = 'pweb-docs-sidebar-collapsed';
+      try {
+        if (localStorage.getItem(SIDEBAR_KEY) === '1') {
+          sidebar.classList.add('collapsed');
+        }
+      } catch (e) { /* ignore */ }
+
+      sidebarToggle.addEventListener('click', function () {
+        sidebar.classList.toggle('collapsed');
+        try {
+          localStorage.setItem(SIDEBAR_KEY, sidebar.classList.contains('collapsed') ? '1' : '0');
+        } catch (e) { /* ignore */ }
+      });
+    }
+
+    // ── Copy button handler ──────────────────────────────────
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest && e.target.closest('.copy-btn');
+      if (!btn) return;
+      e.preventDefault();
+      var code = btn.getAttribute('data-code') || '';
+      // Decode HTML entities
+      var temp = document.createElement('textarea');
+      temp.innerHTML = code;
+      var decoded = temp.value;
+      navigator.clipboard.writeText(decoded).then(function () {
+        btn.textContent = 'Copied!';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 2000);
+      });
+    });
+
     // ── Dark mode toggle ──────────────────────────────────────
     var DARK_KEY = 'pweb-docs-dark';
     var darkBtn = document.querySelector('.dark-toggle');
