@@ -2,20 +2,64 @@ name: Publish to GitHub Packages
 
 on:
   push:
-    tags: ['v*']
+    branches: [main]
+    paths:
+      - 'package.json'
+      - 'src/**'
+      - '.github/workflows/publish.yml'
   workflow_dispatch:
 
 permissions:
   packages: write
-  contents: read
+  contents: write
 
 jobs:
   publish:
-    uses: puglieseweb-ltd/shared-cicd/.github/workflows/npm-publish.yml@main
-    secrets: inherit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check if version changed
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          TAG="v${VERSION}"
+          if git ls-remote --tags origin "refs/tags/${TAG}" | grep -q "${TAG}"; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Tag ${TAG} already exists — skipping publish"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "New version ${VERSION} — will publish"
+          fi
+
+      - name: Set up Node.js
+        if: steps.version.outputs.exists == 'false'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: https://npm.pkg.github.com
+
+      - name: Publish to GitHub Packages
+        if: steps.version.outputs.exists == 'false'
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.ORG_PAT }}
+
+      - name: Create git tag
+        if: steps.version.outputs.exists == 'false'
+        run: |
+          TAG="v${{ steps.version.outputs.version }}"
+          git tag "$TAG"
+          git push origin "$TAG"
+
+    outputs:
+      published: ${{ steps.version.outputs.exists == 'false' }}
+      version: ${{ steps.version.outputs.version }}
 
   notify-consumers:
     needs: publish
+    if: needs.publish.outputs.published == 'true'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -24,18 +68,10 @@ jobs:
           - product-systemdox
           - product-puglieseweb
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Get published version
-        id: pkg
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
       - name: Dispatch update event
         uses: peter-evans/repository-dispatch@v3
         with:
           token: ${{ secrets.ORG_PAT }}
           repository: puglieseweb-ltd/${{ matrix.repo }}
           event-type: dependency-update
-          client-payload: '{"package": "@puglieseweb-ltd/shared-astro-ui", "version": "${{ steps.pkg.outputs.version }}"}'
+          client-payload: '{"package": "@puglieseweb-ltd/shared-astro-ui", "version": "${{ needs.publish.outputs.version }}"}'
